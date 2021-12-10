@@ -1,0 +1,71 @@
+"""
+# -*- coding: utf-8 -*-
+#Stephon Kumar
+#stephon.kumar13@myhunter.cuny.edu
+#Python3 Final "
+"""
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+#read csv file from local repository
+#link to this csv file: https://data.cityofnewyork.us/api/views/43nn-pn8j/rows.csv?accessType=DOWNLOAD
+#csv was also renamed to "nycrest.csv"
+tasknyc = pd.read_csv('nycrest.csv')
+
+#columns to be used
+tasknyc = tasknyc[['DBA','BORO','STREET','ZIPCODE','CUISINE DESCRIPTION','SCORE','GRADE']]
+
+#taking out grades that are not relevant to this data
+tasknyc = tasknyc[tasknyc.GRADE != 'N']
+tasknyc = tasknyc[tasknyc.GRADE != 'G']
+tasknyc = tasknyc[tasknyc.GRADE != 'Z']
+tasknyc = tasknyc[tasknyc.GRADE != 'P']
+tasknyc = tasknyc[tasknyc.GRADE != 'Not Yet Graded']
+tasknyc = tasknyc[tasknyc.BORO != 'Missing']
+tasknyc = tasknyc[tasknyc.BORO != '0']
+tasknyc = tasknyc.reset_index()
+
+#display updated NYC boro information and list
+tasknyc.head()
+
+#bar graph of count and grade per boro
+sns.countplot(y = 'GRADE', data=tasknyc, hue='BORO', palette='Reds_d')
+plt.style.use("fivethirtyeight") #style for the graph
+
+#piechart for all boros
+critical_g = tasknyc[[ "GRADE"]]
+crit_g = critical_g.dropna()
+crit_g["GRADE"].value_counts().plot(kind="pie", title = "NYC Boros")
+
+#piecharts for individual boros
+borograph = tasknyc[["BORO", "GRADE"]]
+borograph = borograph.dropna()
+
+#combine boro grades and the boro
+borograph["Boro Grades"] = borograph["BORO"] + borograph["GRADE"]
+combined_nycboro = borograph["Boro Grades"].value_counts()
+
+#graphing spots for the pie graphs
+manhattan_grades = combined_nycboro.iloc[[0,5,10]]
+brooklyn_grades = combined_nycboro.iloc[[1,6,11]]
+queens_grades = combined_nycboro.iloc[[2,7,12]]
+bronx_grades = combined_nycboro.iloc[[3,8,13]]
+statenisland_grades = combined_nycboro.iloc[[4,9,14]]
+
+#ploting the points for the pie graphs per boro data
+fig, ax = plt.subplots(3,2, figsize=(14,16))
+
+queens_grades.plot(ax=ax[1,0],kind='pie',title='Queens Grades', labels = ["A","B","C"])
+brooklyn_grades.plot(ax=ax[0,1],kind="pie", title="Brooklyn Grades",labels = ["A","B","C"])
+manhattan_grades.plot(ax=ax[0,0],kind="pie",title="Manhattan Grades",labels = ["A","B","C"])
+bronx_grades.plot(ax=ax[1,1],kind="pie",title="Bronx Grades",labels = ["A","B","C"])
+statenisland_grades.plot(ax=ax[2,0],kind="pie",title="Staten Island Grades",labels = ["A","B","C"])
+
+#showing the axis per boro
+ax[0,0].set_ylabel("")
+ax[1,0].set_ylabel("")
+ax[0,1].set_ylabel("")
+ax[1,1].set_ylabel("")
+ax[2,0].set_ylabel("")
